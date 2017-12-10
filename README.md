@@ -1,6 +1,6 @@
 Pi Tank
 ======
-Pi Tank
+Raspberry Pi Tank controller, play with 🎮 PS DualShock 2.
 
 # License
 
