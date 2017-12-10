@@ -1,4 +1,4 @@
-var Joystick = new(require('src/joystick'))(0),
+var Joystick = new(require('./src/joystick'))(0),
     Gpio = require('pigpio').Gpio,
     MotorL1A = new Gpio(23, {
         mode: Gpio.OUTPUT
@@ -24,6 +24,9 @@ var Joystick = new(require('src/joystick'))(0),
     PWM = 0,
     DPWM = 0,
     ENG = false;
+
+console.log('Press the start button to start the engine.');
+
 Joystick.on('axis', function(event) {
     if (!ENG) {
         return;
@@ -123,7 +126,7 @@ Joystick.on('button', function(event) {
             brakes();
             break;
         case 8:
-            console.log('Exit');
+            console.log('GAME OVER!');
             brakes();
             MotorLEN.digitalWrite(0);
             MotorREN.digitalWrite(0);
