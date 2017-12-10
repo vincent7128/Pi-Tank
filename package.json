@@ -1,0 +1,30 @@
+{
+  "name": "Pi-Tank",
+  "version": "0.1.0",
+  "description": "Raspberry Pi Tank controller, work with 🎮 PS DualShock 2.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vincent7128/Pi-Tank.git"
+  },
+  "keywords": [
+    "Raspberry Pi",
+    "GPIO",
+    "PWM",
+    "L239D",
+    "Joystick",
+    "DualShock"
+  ],
+  "author": "Vincent Chen <vincent@pinpin.link>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vincent7128/Pi-Tank/issues"
+  },
+  "homepage": "https://vincent7128.github.io/Pi-Tank/",
+  "dependencies": {
+    "pigpio": "^0.6.3"
+  }
+}
