@@ -52,6 +52,46 @@ Joystick.on('axis', function(event) {
             PWM_MAX
         )
     );
+    go();
+});
+
+Joystick.on('button', function(event) {
+    if (!event.value) {
+        return;
+    }
+    switch (event.number) {
+        case 3:
+            console.log('Breaks');
+            brakes();
+            break;
+        case 8:
+            console.log('GAME OVER!');
+            brakes();
+            MotorLEN.digitalWrite(0);
+            MotorREN.digitalWrite(0);
+            process.exit(1);
+            break;
+        case 9:
+            engSwitch();
+            break;
+    }
+});
+
+function engSwitch() {
+    brakes();
+    if (!ENG) {
+        console.log('Engine Started');
+        MotorLEN.digitalWrite(1);
+        MotorREN.digitalWrite(1);
+    } else {
+        console.log('Engine Stopped');
+        MotorLEN.digitalWrite(0);
+        MotorREN.digitalWrite(0);
+    }
+    ENG = !ENG;
+}
+
+function go() {
     switch (DEG) {
         case 0:
             console.log('Turn Right:', DEG, 'Left:', PWM, 'Right:', PWM);
@@ -118,39 +158,7 @@ Joystick.on('axis', function(event) {
                 MotorR2A.digitalWrite(0);
             }
     }
-});
-
-Joystick.on('button', function(event) {
-    if (!event.value) {
-        return;
-    }
-    switch (event.number) {
-        case 3:
-            console.log('Breaks');
-            brakes();
-            break;
-        case 8:
-            console.log('GAME OVER!');
-            brakes();
-            MotorLEN.digitalWrite(0);
-            MotorREN.digitalWrite(0);
-            process.exit(1);
-            break;
-        case 9:
-            brakes();
-            if (!ENG) {
-                console.log('Engine Started');
-                MotorLEN.digitalWrite(1);
-                MotorREN.digitalWrite(1);
-            } else {
-                console.log('Engine Stopped');
-                MotorLEN.digitalWrite(0);
-                MotorREN.digitalWrite(0);
-            }
-            ENG = !ENG;
-            break;
-    }
-});
+}
 
 function brakes() {
     X = 0;
