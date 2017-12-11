@@ -74,8 +74,8 @@ Joystick.on('axis', function(event) {
             MotorL1A.pwmWrite(PWM);
             MotorL2A.digitalWrite(0);
 
-            MotorR2A.digitalWrite(0);
-            MotorR1A.pwmWrite(PWM);
+            MotorR1A.digitalWrite(0);
+            MotorR2A.pwmWrite(PWM);
             break;
         case 180:
         case -180:
