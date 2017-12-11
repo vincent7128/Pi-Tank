@@ -1,21 +1,21 @@
 var Joystick = new(require('./src/joystick'))(0),
     Gpio = require('pigpio').Gpio,
-    MotorL1A = new Gpio(23, {
+    MotorL1A = new Gpio(10, {
         mode: Gpio.OUTPUT
     }),
-    MotorL2A = new Gpio(24, {
+    MotorL2A = new Gpio(9, {
         mode: Gpio.OUTPUT
     }),
-    MotorLEN = new Gpio(25, {
+    MotorLEN = new Gpio(11, {
         mode: Gpio.OUTPUT
     }),
-    MotorR1A = new Gpio(10, {
+    MotorR1A = new Gpio(23, {
         mode: Gpio.OUTPUT
     }),
-    MotorR2A = new Gpio(9, {
+    MotorR2A = new Gpio(24, {
         mode: Gpio.OUTPUT
     }),
-    MotorREN = new Gpio(11, {
+    MotorREN = new Gpio(25, {
         mode: Gpio.OUTPUT
     }),
     X = 0,
@@ -53,69 +53,69 @@ Joystick.on('axis', function(event) {
         )
     );
     switch (DEG) {
-        case 90:
-            console.log('Go Forward:', DEG, 'Left:', PWM, 'Right:', PWM);
-            MotorL1A.pwmWrite(PWM);
-            MotorL2A.digitalWrite(0);
+        case 0:
+            console.log('Turn Right:', DEG, 'Left:', PWM, 'Right:', PWM);
+            MotorL1A.digitalWrite(0);
+            MotorL2A.pwmWrite(PWM);
 
             MotorR1A.pwmWrite(PWM);
             MotorR2A.digitalWrite(0);
             break;
-        case -90:
-            console.log('Go Backward:', DEG, 'Left:', PWM, 'Right:', PWM);
-            MotorL1A.digitalWrite(0);
-            MotorL2A.pwmWrite(PWM);
-
-            MotorR1A.digitalWrite(0);
-            MotorR2A.pwmWrite(PWM);
-            break;
-        case 0:
-            console.log('Turn Right:', DEG, 'Left:', PWM, 'Right:', PWM);
+        case 180:
+        case -180:
+            console.log('Turn Left:', DEG, 'Left:', PWM, 'Right:', PWM);
             MotorL1A.pwmWrite(PWM);
             MotorL2A.digitalWrite(0);
 
             MotorR1A.digitalWrite(0);
             MotorR2A.pwmWrite(PWM);
             break;
-        case 180:
-        case -180:
-            console.log('Turn Left:', DEG, 'Left:', PWM, 'Right:', PWM);
+        case 90:
+            console.log('Go Forward:', DEG, 'Left:', PWM, 'Right:', PWM);
             MotorL1A.digitalWrite(0);
             MotorL2A.pwmWrite(PWM);
+
+            MotorR1A.digitalWrite(0);
+            MotorR2A.pwmWrite(PWM);
+            break;
+        case -90:
+            console.log('Go Backward:', DEG, 'Left:', PWM, 'Right:', PWM);
+            MotorL1A.pwmWrite(PWM);
+            MotorL2A.digitalWrite(0);
 
             MotorR1A.pwmWrite(PWM);
             MotorR2A.digitalWrite(0);
             break;
         default:
-            DPWN = Math.max(Math.floor(PWM * Math.abs((DEG % 90 / 90))), 60);
+            DPWM = Math.max(Math.floor(PWM * Math.abs((Math.abs(DEG) > 90 ? (180 - Math.abs(DEG)) / 90 : Math.abs(DEG) / 90))), 60);
             if (DEG > 0 && DEG < 90) {
-                console.log('Go Forward Left:', DEG, 'Left:', PWM, 'Right:', DPWN);
-                MotorL1A.pwmWrite(PWM);
-                MotorL2A.digitalWrite(0);
-
-                MotorR1A.pwmWrite(DPWN);
-                MotorR2A.digitalWrite(0);
-            } else if (DEG > 90 && DEG < 180) {
-                console.log('Go Forward Right:', DEG, 'Left:', DPWN, 'Right:', PWM);
-                MotorL1A.pwmWrite(DPWN);
-                MotorL2A.digitalWrite(0);
-
-                MotorR1A.pwmWrite(PWM);
-                MotorR2A.digitalWrite(0);
-            } else if (DEG < 0 && DEG > -90) {
-                console.log('Go Backward Left:', DEG, 'Left:', PWM, 'Right:', DPWN);
+                console.log('Go Forward Right:', DEG, 'Left:', PWM, 'Right:', DPWM);
                 MotorL1A.digitalWrite(0);
                 MotorL2A.pwmWrite(PWM);
 
                 MotorR1A.digitalWrite(0);
-                MotorR2A.pwmWrite(DPWN);
-            } else {
-                console.log('Go Backward Right:', DEG, 'Left:', DPWN, 'Right:', PWM);
+                MotorR2A.pwmWrite(DPWM);
+            } else if (DEG > 90 && DEG < 180) {
+                console.log('Go Forward Left:', DEG, 'Left:', DPWM, 'Right:', PWM);
                 MotorL1A.digitalWrite(0);
-                MotorL2A.pwmWrite(DPWN);
+                MotorL2A.pwmWrite(DPWM);
 
                 MotorR1A.digitalWrite(0);
                 MotorR2A.pwmWrite(PWM);
+            } else if (DEG < 0 && DEG > -90) {
+                console.log('Go Backward Right:', DEG, 'Left:', PWM, 'Right:', DPWM);
+                MotorL1A.pwmWrite(PWM);
+                MotorL2A.digitalWrite(0);
+
+                MotorR1A.pwmWrite(DPWM);
+                MotorR2A.digitalWrite(0);
+            } else {
+                console.log('Go Backward Left:', DEG, 'Left:', DPWM, 'Right:', PWM);
+                MotorL1A.pwmWrite(DPWM);
+                MotorL2A.digitalWrite(0);
+
+                MotorR1A.pwmWrite(PWM);
+                MotorR2A.digitalWrite(0);
             }
     }
 });
