@@ -23,6 +23,8 @@ var Joystick = new(require('./src/joystick'))(0),
     DEG = 0,
     PWM = 0,
     DPWM = 0,
+    PWM_MAX = 255,
+    PWM_MIN = 60,
     ENG = false;
 
 console.log('Press the start button to start the engine.');
@@ -44,7 +46,15 @@ Joystick.on('axis', function(event) {
         return;
     }
     DEG = Math.floor(Math.atan2(X, Y) * 180 / Math.PI);
-    PWM = Math.min(Math.max(Math.floor(Math.abs(Math.max(Math.abs(X), Math.abs(Y)) / 32767) * 255), 100), 255);
+    PWM = Math.floor(
+        Math.min(
+            Math.max(
+                Math.abs(Math.max(Math.abs(X), Math.abs(Y)) / 32767) * PWM_MAX,
+                PWM_MIN
+            ),
+            PWM_MAX
+        )
+    );
     switch (DEG) {
         case 90:
             console.log('Go Forward:', DEG, 'Left:', PWM, 'Right:', PWM);
@@ -80,8 +90,8 @@ Joystick.on('axis', function(event) {
             MotorR2A.digitalWrite(0);
             break;
         default:
+            DPWN = Math.max(Math.floor(PWM * Math.abs((DEG % 90 / 90))), 60);
             if (DEG > 0 && DEG < 90) {
-                DPWN = Math.floor(PWM * (DEG / 90));
                 console.log('Go Forward Left:', DEG, 'Left:', PWM, 'Right:', DPWN);
                 MotorL1A.pwmWrite(PWM);
                 MotorL2A.digitalWrite(0);
@@ -89,7 +99,6 @@ Joystick.on('axis', function(event) {
                 MotorR1A.pwmWrite(DPWN);
                 MotorR2A.digitalWrite(0);
             } else if (DEG > 90 && DEG < 180) {
-                DPWN = Math.floor(PWM * ((180 - DEG) / 90));
                 console.log('Go Forward Right:', DEG, 'Left:', DPWN, 'Right:', PWM);
                 MotorL1A.pwmWrite(DPWN);
                 MotorL2A.digitalWrite(0);
@@ -97,7 +106,6 @@ Joystick.on('axis', function(event) {
                 MotorR1A.pwmWrite(PWM);
                 MotorR2A.digitalWrite(0);
             } else if (DEG < 0 && DEG > -90) {
-                DPWN = Math.max(Math.floor(PWM * (DEG / -90)), 60);
                 console.log('Go Backward Left:', DEG, 'Left:', PWM, 'Right:', DPWN);
                 MotorL1A.digitalWrite(0);
                 MotorL2A.pwmWrite(PWM);
@@ -105,7 +113,6 @@ Joystick.on('axis', function(event) {
                 MotorR1A.digitalWrite(0);
                 MotorR2A.pwmWrite(DPWN);
             } else {
-                DPWN = Math.max(Math.floor(PWM * ((-180 - DEG) / -90)), 60);
                 console.log('Go Backward Right:', DEG, 'Left:', DPWN, 'Right:', PWM);
                 MotorL1A.digitalWrite(0);
                 MotorL2A.pwmWrite(DPWN);
