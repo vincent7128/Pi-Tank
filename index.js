@@ -25,6 +25,7 @@ var Joystick = new(require('./src/joystick'))(0),
     DPWM = 0,
     PWM_MAX = 255,
     PWM_MIN = 60,
+    PWM_DEG = PWM_MAX - PWM_MIN,
     ENG = false;
 
 console.log('Press the start button to start the engine.');
@@ -43,15 +44,7 @@ Joystick.on('axis', function(event) {
         return;
     }
     DEG = Math.floor(Math.atan2(X, Y) * 180 / Math.PI);
-    PWM = Math.floor(
-        Math.min(
-            Math.max(
-                Math.abs(Math.max(Math.abs(X), Math.abs(Y)) / 32767) * PWM_MAX,
-                PWM_MIN
-            ),
-            PWM_MAX
-        )
-    );
+    PWM = Math.floor(Math.abs(Math.max(Math.abs(X), Math.abs(Y)) / 32767) * PWM_DEG + PWM_MIN);
     go();
 });
 
@@ -127,7 +120,7 @@ function go() {
             MotorR2A.digitalWrite(0);
             break;
         default:
-            DPWM = Math.max(Math.floor(PWM * Math.abs((Math.abs(DEG) > 90 ? (180 - Math.abs(DEG)) / 90 : Math.abs(DEG) / 90))), 60);
+            DPWM = Math.max(Math.floor(PWM * Math.abs((Math.abs(DEG) > 90 ? (180 - Math.abs(DEG)) / 90 : Math.abs(DEG) / 90))), PWM_MIN);
             if (DEG > 0 && DEG < 90) {
                 console.log('Go Forward Right:', DEG, 'Left:', PWM, 'Right:', DPWM);
                 MotorL1A.digitalWrite(0);
