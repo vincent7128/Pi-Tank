@@ -39,10 +39,7 @@ Joystick.on('axis', function(event) {
         Y = event.value;
     }
     if (!X && !Y) {
-        MotorL1A.digitalWrite(0);
-        MotorL2A.digitalWrite(0);
-        MotorR1A.digitalWrite(0);
-        MotorR2A.digitalWrite(0);
+        brakes();
         return;
     }
     DEG = Math.floor(Math.atan2(X, Y) * 180 / Math.PI);
@@ -150,7 +147,7 @@ Joystick.on('button', function(event) {
                 MotorLEN.digitalWrite(0);
                 MotorREN.digitalWrite(0);
             }
-            ENG = ENG ? false : true;
+            ENG = !ENG;
             break;
     }
 });
