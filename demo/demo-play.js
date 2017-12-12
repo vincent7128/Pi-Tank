@@ -1,20 +1,3 @@
-Pi Tank
-======
-Raspberry Pi Tank, play with 🎮 PS DualShock 2 or scripts.
-
-[📺 Demo On Youtube](https://youtu.be/czwEzWJb0UM)
-
-# Usage
-
-Install:
-
-```
-npm install Pi-Tank
-```
-
-Create your own:
-
-```
 var PiTank = require('Pi-Tank');
 tank = PiTank();
 
@@ -79,14 +62,3 @@ tank.play([
         }
     }
 ]);
-```
-
-Run it:
-
-```
-sudo node yours.js
-```
-
-# License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
