@@ -9,13 +9,13 @@ Raspberry Pi Tank, play with 🎮 PS DualShock 2 or scripts.
 Install:
 
 ```
-npm install Pi-Tank
+npm install pi-tank
 ```
 
 Create your own:
 
 ```
-var PiTank = require('Pi-Tank');
+var PiTank = require('pi-tank');
 tank = PiTank();
 
 tank.play([

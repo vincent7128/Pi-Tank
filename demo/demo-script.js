@@ -1,4 +1,4 @@
-var PiTank = require('Pi-Tank');
+var PiTank = require('pi-tank');
 tank = PiTank();
 
 tank.break();
