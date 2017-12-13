@@ -1,7 +1,10 @@
-var Joystick = require('./joystick'),
-    Gpio = require('pigpio').Gpio,
-    MotorL1A, MotorL2A, MotorLEN,
-    MotorR1A, MotorR2A, MotorREN,
+var VERSION = '0.3.0'
+    Joystick = require('./joystick'),
+    GPIO = require('pigpio').GPIO,
+    L293 = {
+        // P1A, P2A, P12EN,
+        // P4A, P3A, P34EN
+    },
     joystick,
     DEG, PWM, DPWM,
     PWM_MAX, PWM_MIN, PWM_DEG,
@@ -19,23 +22,23 @@ function PiTank(option) {
     PWM_MAX = option.pwmMax || 255;
     PWM_MIN = option.pwmMin || 60;
     PWM_DEG = PWM_MAX - PWM_MIN;
-    MotorL1A = new Gpio(option.motor && option.motor.L1A || 10, {
-        mode: Gpio.OUTPUT
+    L293.P1A = new GPIO(option.L293 && option.L293.P1A || 23, {
+        mode: GPIO.OUTPUT
     });
-    MotorL2A = new Gpio(option.motor && option.motor.L2A || 9, {
-        mode: Gpio.OUTPUT
+    L293.P2A = new GPIO(option.L293 && option.L293.P2A || 24, {
+        mode: GPIO.OUTPUT
     });
-    MotorLEN = new Gpio(option.motor && option.motor.LEN || 11, {
-        mode: Gpio.OUTPUT
+    L293.P12EN = new GPIO(option.L293 && option.L293.P12EN || 25, {
+        mode: GPIO.OUTPUT
     });
-    MotorR1A = new Gpio(option.motor && option.motor.R1A || 23, {
-        mode: Gpio.OUTPUT
+    L293.P3A = new GPIO(option.L293 && option.L293.P3A || 17, {
+        mode: GPIO.OUTPUT
     });
-    MotorR2A = new Gpio(option.motor && option.motor.R1A || 24, {
-        mode: Gpio.OUTPUT
+    L293.P4A = new GPIO(option.L293 && option.L293.P4A || 27, {
+        mode: GPIO.OUTPUT
     });
-    MotorREN = new Gpio(option.motor && option.motor.REN || 25, {
-        mode: Gpio.OUTPUT
+    L293.P34EN = new GPIO(option.L293 && option.L293.P34EN || 22, {
+        mode: GPIO.OUTPUT
     });
     if (option.joystick) {
         this.joystick = new Joystick(option.joystick.id);
@@ -44,6 +47,8 @@ function PiTank(option) {
         this.joystick.on('axis', option.joystick.axis || axis.bind(this));
         this.joystick.on('button', option.joystick.button || button.bind(this));
     }
+    console.log('*** Pi-Tank ***');
+    console.log('VERSION', VERSION);
     return this;
 }
 
@@ -52,6 +57,7 @@ fn = PiTank.prototype;
 fn.deg = function(deg) {
     if (deg !== undefined) {
         DEG = trimDeg(deg);
+        console.log('DEG', DEG);
         action();
     }
     return DEG;
@@ -60,6 +66,7 @@ fn.deg = function(deg) {
 fn.pwm = function(pwm) {
     if (pwm !== undefined) {
         PWM = Math.min(Math.max(pwm, PWM_MIN), PWM_MAX);
+        console.log('PWM', PWM);
         action();
     }
     return PWM;
@@ -67,25 +74,25 @@ fn.pwm = function(pwm) {
 
 fn.break = function() {
     if (BREAK) {
-        MotorLEN.digitalWrite(1);
-        MotorREN.digitalWrite(1);
+        L293.P12EN.digitalWrite(1);
+        L293.P34EN.digitalWrite(1);
         console.log('!!! BREAK OFF !!!');
     } else {
-        MotorLEN.digitalWrite(0);
-        MotorREN.digitalWrite(0);
+        L293.P12EN.digitalWrite(0);
+        L293.P34EN.digitalWrite(0);
         console.log('!!! BREAK ON !!!');
     }
     return BREAK = !BREAK;
 };
 
 fn.off = function () {
-    MotorL1A.digitalWrite(0);
-    MotorL2A.digitalWrite(0);
-    MotorLEN.digitalWrite(0);
+    L293.P1A.digitalWrite(0);
+    L293.P2A.digitalWrite(0);
+    L293.P12EN.digitalWrite(0);
 
-    MotorR1A.digitalWrite(0);
-    MotorR2A.digitalWrite(0);
-    MotorREN.digitalWrite(0);
+    L293.P3A.digitalWrite(0);
+    L293.P4A.digitalWrite(0);
+    L293.P34EN.digitalWrite(0);
     console.log('*** GAME OVER ***');
     process.exit(1);
 }
@@ -107,40 +114,40 @@ fn.play = function (acts) {
 };
 
 function action() {
-    if (BREAK) {
+    if (BREAK || PWM < 1) {
         return;
     }
     switch (DEG) {
         case 0:
-            MotorL1A.digitalWrite(0);
-            MotorL2A.pwmWrite(PWM);
+            L293.P1A.digitalWrite(0);
+            L293.P2A.pwmWrite(PWM);
 
-            MotorR1A.pwmWrite(PWM);
-            MotorR2A.digitalWrite(0);
+            L293.P3A.pwmWrite(PWM);
+            L293.P4A.digitalWrite(0);
             console.log('Turn Right', 'DEG', DEG, '[L]', PWM, '[R]', PWM);
             break;
         case 90:
-            MotorL1A.digitalWrite(0);
-            MotorL2A.pwmWrite(PWM);
+            L293.P1A.digitalWrite(0);
+            L293.P2A.pwmWrite(PWM);
 
-            MotorR1A.digitalWrite(0);
-            MotorR2A.pwmWrite(PWM);
+            L293.P3A.digitalWrite(0);
+            L293.P4A.pwmWrite(PWM);
             console.log('Go Forward', 'DEG', DEG, '[L]', PWM, '[R]', PWM);
             break;
         case 180:
-            MotorL1A.pwmWrite(PWM);
-            MotorL2A.digitalWrite(0);
+            L293.P1A.pwmWrite(PWM);
+            L293.P2A.digitalWrite(0);
 
-            MotorR1A.digitalWrite(0);
-            MotorR2A.pwmWrite(PWM);
+            L293.P3A.digitalWrite(0);
+            L293.P4A.pwmWrite(PWM);
             console.log('Turn Left', 'DEG', DEG, '[L]', PWM, '[R]', PWM);
             break;
         case 270:
-            MotorL1A.pwmWrite(PWM);
-            MotorL2A.digitalWrite(0);
+            L293.P1A.pwmWrite(PWM);
+            L293.P2A.digitalWrite(0);
 
-            MotorR1A.pwmWrite(PWM);
-            MotorR2A.digitalWrite(0);
+            L293.P3A.pwmWrite(PWM);
+            L293.P4A.digitalWrite(0);
             console.log('Go Backward', 'DEG', DEG, '[L]', PWM, '[R]', PWM);
             break;
         default:
@@ -149,44 +156,44 @@ function action() {
                     Math.floor(PWM * DEG / 90),
                     PWM_MIN
                 );
-                MotorL1A.digitalWrite(0);
-                MotorL2A.pwmWrite(PWM);
+                L293.P1A.digitalWrite(0);
+                L293.P2A.pwmWrite(PWM);
 
-                MotorR1A.digitalWrite(0);
-                MotorR2A.pwmWrite(DPWM);
+                L293.P3A.digitalWrite(0);
+                L293.P4A.pwmWrite(DPWM);
                 console.log('Go F-Right', 'DEG', DEG, '[L]', PWM, '[R]', DPWM);
             } else if (DEG < 180) {
                 DPWM = Math.max(
                     Math.floor(PWM * (180 - DEG) / 90),
                     PWM_MIN
                 );
-                MotorL1A.digitalWrite(0);
-                MotorL2A.pwmWrite(DPWM);
+                L293.P1A.digitalWrite(0);
+                L293.P2A.pwmWrite(DPWM);
 
-                MotorR1A.digitalWrite(0);
-                MotorR2A.pwmWrite(PWM);
+                L293.P3A.digitalWrite(0);
+                L293.P4A.pwmWrite(PWM);
                 console.log('Go F-Left', 'DEG', DEG, '[L]', DPWM, '[R]', PWM);
             } else if (DEG < 270) {
                 DPWM = Math.max(
                     Math.floor(PWM * (DEG - 180) / 90),
                     PWM_MIN
                 );
-                MotorL1A.pwmWrite(PWM);
-                MotorL2A.digitalWrite(0);
+                L293.P1A.pwmWrite(PWM);
+                L293.P2A.digitalWrite(0);
 
-                MotorR1A.pwmWrite(DPWM);
-                MotorR2A.digitalWrite(0);
+                L293.P3A.pwmWrite(DPWM);
+                L293.P4A.digitalWrite(0);
                 console.log('Go B-Right', 'DEG', DEG, '[L]', PWM, '[R]', DPWM);
             } else {
                 DPWM = Math.max(
                     Math.floor(PWM * (360 - DEG) / 90),
                     PWM_MIN
                 );
-                MotorL1A.pwmWrite(DPWM);
-                MotorL2A.digitalWrite(0);
+                L293.P1A.pwmWrite(DPWM);
+                L293.P2A.digitalWrite(0);
 
-                MotorR1A.pwmWrite(PWM);
-                MotorR2A.digitalWrite(0);
+                L293.P3A.pwmWrite(PWM);
+                L293.P4A.digitalWrite(0);
                 console.log('Go B-Left', 'DEG', DEG, '[L]', DPWM, '[R]', PWM);
             }
     }
@@ -202,11 +209,11 @@ function axis(event) {
         this.joystick.Y = event.value;
     }
     if (!this.joystick.X && !this.joystick.Y) {
-        MotorL1A.digitalWrite(0);
-        MotorL2A.digitalWrite(0);
+        L293.P1A.digitalWrite(0);
+        L293.P2A.digitalWrite(0);
 
-        MotorR1A.digitalWrite(0);
-        MotorR2A.digitalWrite(0);
+        L293.P3A.digitalWrite(0);
+        L293.P4A.digitalWrite(0);
         return;
     }
     this.deg(Math.floor(
