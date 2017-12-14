@@ -1,4 +1,4 @@
-var VERSION = '0.3.1',
+var VERSION = '0.3.0',
     Joystick = require('./joystick'),
     GPIO = require('pigpio').Gpio,
     L293 = {
