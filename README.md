@@ -6,13 +6,13 @@ Raspberry Pi Tank, play with 🎮 PS DualShock 2 or scripts.
 
 # Usage
 
-Install:
+## Install:
 
 ```
-npm install pi-tank
+# npm install pi-tank
 ```
 
-Create your own:
+## Create run.js file:
 
 ```
 var PiTank = require('pi-tank');
@@ -33,37 +33,7 @@ tank.play([
     },
     {
         play: function () {
-            tank.deg(90 - 45);
-        },
-        time: 3000
-    },
-    {
-        play: function () {
-            tank.deg(90);
-        },
-        time: 5000
-    },
-    {
-        play: function () {
-            tank.deg(90 + 45);
-        },
-        time: 3000
-    },
-    {
-        play: function () {
-            tank.deg(90);
-        },
-        time: 5000
-    },
-    {
-        play: function () {
-            tank.deg(90 - 45);
-        },
-        time: 3000
-    },
-    {
-        play: function () {
-            tank.deg(90);
+            tank.deg(0);
         },
         time: 5000
     },
@@ -75,17 +45,27 @@ tank.play([
     },
     {
         play: function () {
+            tank.deg(180);
+        },
+        time: 5000
+    },
+    {
+        play: function () {
             tank.off();
         }
     }
 ]);
 ```
 
-Run it:
+## Run it:
 
 ```
-sudo node yours.js
+# sudo node run.js
 ```
+
+# L293 default wiring
+
+![l293-default-wiring](l293-default-wiring.png)
 
 # License
 
