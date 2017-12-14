@@ -1,6 +1,6 @@
-var VERSION = '0.3.0'
+var VERSION = '0.3.1',
     Joystick = require('./joystick'),
-    GPIO = require('pigpio').GPIO,
+    GPIO = require('pigpio').Gpio,
     L293 = {
         // P1A, P2A, P12EN,
         // P4A, P3A, P34EN
@@ -22,22 +22,22 @@ function PiTank(option) {
     PWM_MAX = option.pwmMax || 255;
     PWM_MIN = option.pwmMin || 60;
     PWM_DEG = PWM_MAX - PWM_MIN;
-    L293.P1A = new GPIO(option.L293 && option.L293.P1A || 23, {
+    L293.P1A = new GPIO(option.L293 && option.L293.P1A || 17, {
         mode: GPIO.OUTPUT
     });
-    L293.P2A = new GPIO(option.L293 && option.L293.P2A || 24, {
+    L293.P2A = new GPIO(option.L293 && option.L293.P2A || 27, {
         mode: GPIO.OUTPUT
     });
-    L293.P12EN = new GPIO(option.L293 && option.L293.P12EN || 25, {
+    L293.P12EN = new GPIO(option.L293 && option.L293.P12EN || 4, {
         mode: GPIO.OUTPUT
     });
-    L293.P3A = new GPIO(option.L293 && option.L293.P3A || 17, {
+    L293.P3A = new GPIO(option.L293 && option.L293.P3A || 22, {
         mode: GPIO.OUTPUT
     });
-    L293.P4A = new GPIO(option.L293 && option.L293.P4A || 27, {
+    L293.P4A = new GPIO(option.L293 && option.L293.P4A || 23, {
         mode: GPIO.OUTPUT
     });
-    L293.P34EN = new GPIO(option.L293 && option.L293.P34EN || 22, {
+    L293.P34EN = new GPIO(option.L293 && option.L293.P34EN || 18, {
         mode: GPIO.OUTPUT
     });
     if (option.joystick) {
