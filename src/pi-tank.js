@@ -225,18 +225,18 @@ function axis(event) {
     }
     if (!this.joystick.X && !this.joystick.Y) {
         this.speed(0);
-        return;
+    } else {
+        this.direction(Math.floor(
+            Math.atan2(this.joystick.Y, this.joystick.X) * 180 / Math.PI
+        ));
+        this.speed(Math.floor(
+            Math.abs(
+                Math.max(
+                    Math.abs(this.joystick.X), Math.abs(this.joystick.Y)
+                ) / 32767 * 100
+            )
+        ));
     }
-    this.direction(Math.floor(
-        Math.atan2(this.joystick.X, this.joystick.Y) * 180 / Math.PI
-    ));
-    this.speed(Math.floor(
-        Math.abs(
-            Math.max(
-                Math.abs(this.joystick.X), Math.abs(this.joystick.Y)
-            ) / 32767
-        )
-    ));
 }
 
 function button(event) {
