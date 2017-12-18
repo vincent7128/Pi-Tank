@@ -22,32 +22,61 @@ tank.play([
     {
         play: function () {
             tank.break();
-            tank.deg(90);
         }
     },
     {
         play: function () {
-            tank.pwm(255);
+            tank.speed(100);
         },
-        time: 5000
+        time: 3000
     },
     {
         play: function () {
-            tank.deg(0);
+            tank.direction(90);
         },
-        time: 5000
+        time: 3000
     },
     {
         play: function () {
-            tank.deg(270);
+            tank.direction(0);
         },
-        time: 5000
+        time: 3000
     },
     {
         play: function () {
-            tank.deg(180);
+            tank.direction(-90);
         },
-        time: 5000
+        time: 3000
+    },
+    {
+        play: function () {
+            tank.direction(0);
+        },
+        time: 3000
+    },
+    {
+        play: function () {
+            tank.direction(-90);
+        },
+        time: 3000
+    },
+    {
+        play: function () {
+            tank.direction(0);
+        },
+        time: 3000
+    },
+    {
+        play: function () {
+            tank.direction(90);
+        },
+        time: 3000
+    },
+    {
+        play: function () {
+            tank.direction(180);
+        },
+        time: 6000
     },
     {
         play: function () {
