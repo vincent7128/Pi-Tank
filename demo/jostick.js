@@ -1,4 +1,4 @@
-var PiTank = require('pi-tank');
+var PiTank = require('../src/pi-tank');
 tank = PiTank({
     joystick: {
         id: 0
