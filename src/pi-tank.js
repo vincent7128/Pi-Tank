@@ -6,9 +6,11 @@ var VERSION = '0.4.0',
         // P4A, P3A, P34EN
     },
     joystick,
-    DIR, PWM,
+    DIR = 0;
+    PWM = 0;
+    SPEED = 0;
+    DSPEED = 0;
     PWM_MAX, PWM_MIN, PWM_DEG,
-    SPEED, DSPEED,
     BREAK = true,
     fn;
 
@@ -17,10 +19,6 @@ function PiTank(option) {
         return new PiTank(option);
     }
     option = option || {};
-    DIR = 0;
-    PWM = 0;
-    SPEED = 0;
-    DSPEED = 0;
     PWM_MAX = option.pwmMax || 255;
     PWM_MIN = option.pwmMin || 60;
     PWM_DEG = (PWM_MAX - PWM_MIN) / 100;
@@ -46,6 +44,7 @@ function PiTank(option) {
         this.joystick = new Joystick(option.joystick.id);
         this.joystick.X = 0;
         this.joystick.Y = 0;
+        this.joystick.axisMax = option.joystick.axisMax || 32767;
         this.joystick.on('axis', option.joystick.axis || axis.bind(this));
         this.joystick.on('button', option.joystick.button || button.bind(this));
     }
@@ -233,7 +232,7 @@ function axis(event) {
             Math.abs(
                 Math.max(
                     Math.abs(this.joystick.X), Math.abs(this.joystick.Y)
-                ) / 32767 * 100
+                ) / this.joystick.axisMax * 100
             )
         ));
     }
