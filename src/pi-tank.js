@@ -6,7 +6,7 @@ var VERSION = '0.4.0',
         // P4A, P3A, P34EN
     },
     joystick,
-    DIR, PWM, DPWM,
+    DIR, PWM,
     PWM_MAX, PWM_MIN, PWM_DEG,
     SPEED, DSPEED,
     BREAK = true,
@@ -19,7 +19,6 @@ function PiTank(option) {
     option = option || {};
     DIR = 0;
     PWM = 0;
-    DPWM = 0;
     SPEED = 0;
     DSPEED = 0;
     PWM_MAX = option.pwmMax || 255;
@@ -59,7 +58,7 @@ fn = PiTank.prototype;
 
 fn.direction = function(direction) {
     if (direction !== undefined) {
-        DIR = (direction+ 540) % 360 - 180;
+        DIR = (direction + 540) % 360 - 180;
         console.log('Direction', DIR);
         action();
     }
@@ -164,46 +163,46 @@ function action() {
             console.log('Turn Left', 'Direction', DIR, '[L]', SPEED, '[R]', SPEED);
             break;
         default:
-            if (DIR > 0 && DIR < 90) {
-                DSPEED = Math.floor(SPEED * DIR / 90);
-                DPWM = Math.floor(DSPEED * PWM_DEG + PWM_MIN);
+            if (DIR > 0) {
+                if (DIR < 90) {
+                    DSPEED = Math.floor(SPEED * DIR / 90);
 
-                L293.P1A.digitalWrite(0);
-                L293.P2A.pwmWrite(PWM);
+                    L293.P1A.digitalWrite(0);
+                    L293.P2A.pwmWrite(PWM);
 
-                L293.P3A.digitalWrite(0);
-                L293.P4A.pwmWrite(DPWM);
-                console.log('Go F-Right', 'Direction', DIR, '[L]', SPEED, '[R]', DSPEED);
-            } else if (DIR > 90 && DIR < 180) {
-                DSPEED = Math.floor(SPEED * (DIR - 90) / 90);
-                DPWM = Math.floor(DSPEED * PWM_DEG + PWM_MIN);
+                    L293.P3A.digitalWrite(0);
+                    L293.P4A.pwmWrite(Math.floor(DSPEED * PWM_DEG + PWM_MIN));
+                    console.log('Go F-Right', 'Direction', DIR, '[L]', SPEED, '[R]', DSPEED);
+                } else {
+                    DSPEED = Math.floor(SPEED * (DIR - 90) / 90);
 
-                L293.P1A.pwmWrite(PWM);
-                L293.P2A.digitalWrite(0);
+                    L293.P1A.pwmWrite(PWM);
+                    L293.P2A.digitalWrite(0);
 
-                L293.P3A.pwmWrite(DPWM);
-                L293.P4A.digitalWrite(0);
-                console.log('Go B-Right', 'Direction', DIR, '[L]', SPEED, '[R]', DSPEED);
-            } else if (DIR < 0 && DIR > -90) {
-                DSPEED = Math.floor(SPEED * DIR / -90);
-                DPWM = Math.floor(DSPEED * PWM_DEG + PWM_MIN);
-
-                L293.P1A.digitalWrite(0);
-                L293.P2A.pwmWrite(DPWM);
-
-                L293.P3A.digitalWrite(0);
-                L293.P4A.pwmWrite(PWM);
-                console.log('Go F-Left', 'Direction', DIR, '[L]', DSPEED, '[R]', SPEED);
+                    L293.P3A.pwmWrite(Math.floor(DSPEED * PWM_DEG + PWM_MIN));
+                    L293.P4A.digitalWrite(0);
+                    console.log('Go B-Right', 'Direction', DIR, '[L]', SPEED, '[R]', DSPEED);
+                }
             } else {
-                DSPEED = Math.floor(SPEED * (DIR + 90) / -90);
-                DPWM = Math.floor(DSPEED * PWM_DEG + PWM_MIN);
+                if (DIR > -90) {
+                    DSPEED = Math.floor(SPEED * DIR / -90);
 
-                L293.P1A.pwmWrite(DPWM);
-                L293.P2A.digitalWrite(0);
+                    L293.P1A.digitalWrite(0);
+                    L293.P2A.pwmWrite(Math.floor(DSPEED * PWM_DEG + PWM_MIN));
 
-                L293.P3A.pwmWrite(PWM);
-                L293.P4A.digitalWrite(0);
-                console.log('Go B-Left', 'Direction', DIR, '[L]', DSPEED, '[R]', SPEED);
+                    L293.P3A.digitalWrite(0);
+                    L293.P4A.pwmWrite(PWM);
+                    console.log('Go F-Left', 'Direction', DIR, '[L]', DSPEED, '[R]', SPEED);
+                } else {
+                    DSPEED = Math.floor(SPEED * (DIR + 90) / -90);
+
+                    L293.P1A.pwmWrite(Math.floor(DSPEED * PWM_DEG + PWM_MIN));
+                    L293.P2A.digitalWrite(0);
+
+                    L293.P3A.pwmWrite(PWM);
+                    L293.P4A.digitalWrite(0);
+                    console.log('Go B-Left', 'Direction', DIR, '[L]', DSPEED, '[R]', SPEED);
+                }
             }
     }
 }
