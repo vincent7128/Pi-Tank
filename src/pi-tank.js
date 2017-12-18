@@ -6,7 +6,7 @@ var VERSION = '0.4.0',
         // P4A, P3A, P34EN
     },
     joystick,
-    DEG, PWM, DPWM,
+    DIR, PWM, DPWM,
     PWM_MAX, PWM_MIN, PWM_DEG,
     SPEED, DSPEED,
     BREAK = true,
@@ -17,7 +17,7 @@ function PiTank(option) {
         return new PiTank(option);
     }
     option = option || {};
-    DEG = 90;
+    DIR = 0;
     PWM = 0;
     DPWM = 0;
     SPEED = 0;
@@ -57,19 +57,19 @@ function PiTank(option) {
 
 fn = PiTank.prototype;
 
-fn.deg = function(deg) {
-    if (deg !== undefined) {
-        DEG = trimDeg(deg);
-        console.log('DEG', DEG);
+fn.direction = function(direction) {
+    if (direction !== undefined) {
+        DIR = (direction+ 540) % 360 - 180;
+        console.log('Direction', DIR);
         action();
     }
-    return DEG;
+    return DIR;
 };
 
 fn.speed = function(speed) {
     if (speed !== undefined) {
         SPEED = Math.min(Math.max(speed, 0), 100);
-        console.log('SPEED', SPEED);
+        console.log('Speed', SPEED);
         action();
     }
     return SPEED;
@@ -90,7 +90,7 @@ fn.break = function() {
     return BREAK;
 };
 
-fn.off = function () {
+fn.off = function() {
     L293.P1A.digitalWrite(0);
     L293.P2A.digitalWrite(0);
     L293.P12EN.digitalWrite(0);
@@ -104,15 +104,15 @@ fn.off = function () {
 
 fn.state = function() {
     return {
-        deg: DEG,
+        deg: DIR,
         pwm: PWM,
         break: BREAK
     };
 }
 
-fn.play = function (acts) {
+fn.play = function(acts) {
     var time = 0;
-    acts.forEach(function (act) {
+    acts.forEach(function(act) {
         setTimeout(act.play, time);
         time += act.time || 1;
     });
@@ -129,42 +129,43 @@ function action() {
         return;
     }
     PWM = Math.floor(SPEED * PWM_DEG + PWM_MIN);
-    switch (DEG) {
+    switch (DIR) {
         case 0:
             L293.P1A.digitalWrite(0);
             L293.P2A.pwmWrite(PWM);
 
+            L293.P3A.digitalWrite(0);
+            L293.P4A.pwmWrite(PWM);
+            console.log('Go Forward', 'Direction', DIR, '[L]', SPEED, '[R]', SPEED);
+            break;
+        case 180:
+        case -180:
+            L293.P1A.pwmWrite(PWM);
+            L293.P2A.digitalWrite(0);
+
             L293.P3A.pwmWrite(PWM);
             L293.P4A.digitalWrite(0);
-            console.log('Turn Right', 'DEG', DEG, '[L]', SPEED, '[R]', SPEED);
+            console.log('Go Backward', 'Direction', DIR, '[L]', SPEED, '[R]', SPEED);
             break;
         case 90:
             L293.P1A.digitalWrite(0);
             L293.P2A.pwmWrite(PWM);
 
-            L293.P3A.digitalWrite(0);
-            L293.P4A.pwmWrite(PWM);
-            console.log('Go Forward', 'DEG', DEG, '[L]', SPEED, '[R]', SPEED);
-            break;
-        case 180:
-            L293.P1A.pwmWrite(PWM);
-            L293.P2A.digitalWrite(0);
-
-            L293.P3A.digitalWrite(0);
-            L293.P4A.pwmWrite(PWM);
-            console.log('Turn Left', 'DEG', DEG, '[L]', SPEED, '[R]', SPEED);
-            break;
-        case 270:
-            L293.P1A.pwmWrite(PWM);
-            L293.P2A.digitalWrite(0);
-
             L293.P3A.pwmWrite(PWM);
             L293.P4A.digitalWrite(0);
-            console.log('Go Backward', 'DEG', DEG, '[L]', SPEED, '[R]', SPEED);
+            console.log('Turn Right', 'Direction', DIR, '[L]', SPEED, '[R]', SPEED);
+            break;
+        case -90:
+            L293.P1A.pwmWrite(PWM);
+            L293.P2A.digitalWrite(0);
+
+            L293.P3A.digitalWrite(0);
+            L293.P4A.pwmWrite(PWM);
+            console.log('Turn Left', 'Direction', DIR, '[L]', SPEED, '[R]', SPEED);
             break;
         default:
-            if (DEG < 90) {
-                DSPEED = Math.floor(SPEED * DEG / 90);
+            if (DIR > 0 && DIR < 90) {
+                DSPEED = Math.floor(SPEED * DIR / 90);
                 DPWM = Math.floor(DSPEED * PWM_DEG + PWM_MIN);
 
                 L293.P1A.digitalWrite(0);
@@ -172,19 +173,9 @@ function action() {
 
                 L293.P3A.digitalWrite(0);
                 L293.P4A.pwmWrite(DPWM);
-                console.log('Go F-Right', 'DEG', DEG, '[L]', SPEED, '[R]', DSPEED);
-            } else if (DEG < 180) {
-                DSPEED = Math.floor(SPEED * (180 - DEG) / 90);
-                DPWM = Math.floor(DSPEED * PWM_DEG + PWM_MIN);
-
-                L293.P1A.digitalWrite(0);
-                L293.P2A.pwmWrite(DPWM);
-
-                L293.P3A.digitalWrite(0);
-                L293.P4A.pwmWrite(PWM);
-                console.log('Go F-Left', 'DEG', DEG, '[L]', DSPEED, '[R]', SPEED);
-            } else if (DEG < 270) {
-                DSPEED = Math.floor(SPEED * (DEG - 180) / 90);
+                console.log('Go F-Right', 'Direction', DIR, '[L]', SPEED, '[R]', DSPEED);
+            } else if (DIR > 90 && DIR < 180) {
+                DSPEED = Math.floor(SPEED * (DIR - 90) / 90);
                 DPWM = Math.floor(DSPEED * PWM_DEG + PWM_MIN);
 
                 L293.P1A.pwmWrite(PWM);
@@ -192,9 +183,19 @@ function action() {
 
                 L293.P3A.pwmWrite(DPWM);
                 L293.P4A.digitalWrite(0);
-                console.log('Go B-Right', 'DEG', DEG, '[L]', SPEED, '[R]', DSPEED);
+                console.log('Go B-Right', 'Direction', DIR, '[L]', SPEED, '[R]', DSPEED);
+            } else if (DIR < 0 && DIR > -90) {
+                DSPEED = Math.floor(SPEED * DIR / -90);
+                DPWM = Math.floor(DSPEED * PWM_DEG + PWM_MIN);
+
+                L293.P1A.digitalWrite(0);
+                L293.P2A.pwmWrite(DPWM);
+
+                L293.P3A.digitalWrite(0);
+                L293.P4A.pwmWrite(PWM);
+                console.log('Go F-Left', 'Direction', DIR, '[L]', DSPEED, '[R]', SPEED);
             } else {
-                DSPEED = Math.floor(SPEED * (360 - DEG) / 90);
+                DSPEED = Math.floor(SPEED * (DIR + 90) / -90);
                 DPWM = Math.floor(DSPEED * PWM_DEG + PWM_MIN);
 
                 L293.P1A.pwmWrite(DPWM);
@@ -202,7 +203,7 @@ function action() {
 
                 L293.P3A.pwmWrite(PWM);
                 L293.P4A.digitalWrite(0);
-                console.log('Go B-Left', 'DEG', DEG, '[L]', DSPEED, '[R]', SPEED);
+                console.log('Go B-Left', 'Direction', DIR, '[L]', DSPEED, '[R]', SPEED);
             }
     }
 }
@@ -220,7 +221,7 @@ function axis(event) {
         this.speed(0);
         return;
     }
-    this.deg(Math.floor(
+    this.direction(Math.floor(
         Math.atan2(this.joystick.X, this.joystick.Y) * 180 / Math.PI
     ));
     this.speed(Math.floor(
@@ -245,11 +246,6 @@ function button(event) {
             process.exit(1);
             break;
     }
-}
-
-function trimDeg(deg) {
-    deg %= 360;
-    return deg >= 0 ? deg : 360 + deg;
 }
 
 module.exports = PiTank;
