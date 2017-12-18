@@ -1,4 +1,4 @@
-var VERSION = '0.3.0',
+var VERSION = '0.4.0',
     Joystick = require('./joystick'),
     GPIO = require('pigpio').Gpio,
     L293 = {
@@ -8,6 +8,7 @@ var VERSION = '0.3.0',
     joystick,
     DEG, PWM, DPWM,
     PWM_MAX, PWM_MIN, PWM_DEG,
+    SPEED, DSPEED,
     BREAK = true,
     fn;
 
@@ -19,9 +20,11 @@ function PiTank(option) {
     DEG = 90;
     PWM = 0;
     DPWM = 0;
+    SPEED = 0;
+    DSPEED = 0;
     PWM_MAX = option.pwmMax || 255;
     PWM_MIN = option.pwmMin || 60;
-    PWM_DEG = PWM_MAX - PWM_MIN;
+    PWM_DEG = (PWM_MAX - PWM_MIN) / 100;
     L293.P1A = new GPIO(option.L293 && option.L293.P1A || 17, {
         mode: GPIO.OUTPUT
     });
@@ -63,13 +66,13 @@ fn.deg = function(deg) {
     return DEG;
 };
 
-fn.pwm = function(pwm) {
-    if (pwm !== undefined) {
-        PWM = Math.min(Math.max(pwm, PWM_MIN), PWM_MAX);
-        console.log('PWM', PWM);
+fn.speed = function(speed) {
+    if (speed !== undefined) {
+        SPEED = Math.min(Math.max(speed, 0), 100);
+        console.log('SPEED', SPEED);
         action();
     }
-    return PWM;
+    return SPEED;
 };
 
 fn.break = function() {
@@ -82,7 +85,9 @@ fn.break = function() {
         L293.P34EN.digitalWrite(0);
         console.log('!!! BREAK ON !!!');
     }
-    return BREAK = !BREAK;
+    BREAK = !BREAK;
+    action();
+    return BREAK;
 };
 
 fn.off = function () {
@@ -114,9 +119,16 @@ fn.play = function (acts) {
 };
 
 function action() {
-    if (BREAK || PWM < 1) {
+    if (BREAK || !SPEED) {
+        PWM = 0;
+        L293.P1A.digitalWrite(PWM);
+        L293.P2A.digitalWrite(PWM);
+
+        L293.P3A.digitalWrite(PWM);
+        L293.P4A.digitalWrite(PWM);
         return;
     }
+    PWM = Math.floor(SPEED * PWM_DEG + PWM_MIN);
     switch (DEG) {
         case 0:
             L293.P1A.digitalWrite(0);
@@ -124,7 +136,7 @@ function action() {
 
             L293.P3A.pwmWrite(PWM);
             L293.P4A.digitalWrite(0);
-            console.log('Turn Right', 'DEG', DEG, '[L]', PWM, '[R]', PWM);
+            console.log('Turn Right', 'DEG', DEG, '[L]', SPEED, '[R]', SPEED);
             break;
         case 90:
             L293.P1A.digitalWrite(0);
@@ -132,7 +144,7 @@ function action() {
 
             L293.P3A.digitalWrite(0);
             L293.P4A.pwmWrite(PWM);
-            console.log('Go Forward', 'DEG', DEG, '[L]', PWM, '[R]', PWM);
+            console.log('Go Forward', 'DEG', DEG, '[L]', SPEED, '[R]', SPEED);
             break;
         case 180:
             L293.P1A.pwmWrite(PWM);
@@ -140,7 +152,7 @@ function action() {
 
             L293.P3A.digitalWrite(0);
             L293.P4A.pwmWrite(PWM);
-            console.log('Turn Left', 'DEG', DEG, '[L]', PWM, '[R]', PWM);
+            console.log('Turn Left', 'DEG', DEG, '[L]', SPEED, '[R]', SPEED);
             break;
         case 270:
             L293.P1A.pwmWrite(PWM);
@@ -148,53 +160,49 @@ function action() {
 
             L293.P3A.pwmWrite(PWM);
             L293.P4A.digitalWrite(0);
-            console.log('Go Backward', 'DEG', DEG, '[L]', PWM, '[R]', PWM);
+            console.log('Go Backward', 'DEG', DEG, '[L]', SPEED, '[R]', SPEED);
             break;
         default:
             if (DEG < 90) {
-                DPWM = Math.max(
-                    Math.floor(PWM * DEG / 90),
-                    PWM_MIN
-                );
+                DSPEED = Math.floor(SPEED * DEG / 90);
+                DPWM = Math.floor(DSPEED * PWM_DEG + PWM_MIN);
+
                 L293.P1A.digitalWrite(0);
                 L293.P2A.pwmWrite(PWM);
 
                 L293.P3A.digitalWrite(0);
                 L293.P4A.pwmWrite(DPWM);
-                console.log('Go F-Right', 'DEG', DEG, '[L]', PWM, '[R]', DPWM);
+                console.log('Go F-Right', 'DEG', DEG, '[L]', SPEED, '[R]', DSPEED);
             } else if (DEG < 180) {
-                DPWM = Math.max(
-                    Math.floor(PWM * (180 - DEG) / 90),
-                    PWM_MIN
-                );
+                DSPEED = Math.floor(SPEED * (180 - DEG) / 90);
+                DPWM = Math.floor(DSPEED * PWM_DEG + PWM_MIN);
+
                 L293.P1A.digitalWrite(0);
                 L293.P2A.pwmWrite(DPWM);
 
                 L293.P3A.digitalWrite(0);
                 L293.P4A.pwmWrite(PWM);
-                console.log('Go F-Left', 'DEG', DEG, '[L]', DPWM, '[R]', PWM);
+                console.log('Go F-Left', 'DEG', DEG, '[L]', DSPEED, '[R]', SPEED);
             } else if (DEG < 270) {
-                DPWM = Math.max(
-                    Math.floor(PWM * (DEG - 180) / 90),
-                    PWM_MIN
-                );
+                DSPEED = Math.floor(SPEED * (DEG - 180) / 90);
+                DPWM = Math.floor(DSPEED * PWM_DEG + PWM_MIN);
+
                 L293.P1A.pwmWrite(PWM);
                 L293.P2A.digitalWrite(0);
 
                 L293.P3A.pwmWrite(DPWM);
                 L293.P4A.digitalWrite(0);
-                console.log('Go B-Right', 'DEG', DEG, '[L]', PWM, '[R]', DPWM);
+                console.log('Go B-Right', 'DEG', DEG, '[L]', SPEED, '[R]', DSPEED);
             } else {
-                DPWM = Math.max(
-                    Math.floor(PWM * (360 - DEG) / 90),
-                    PWM_MIN
-                );
+                DSPEED = Math.floor(SPEED * (360 - DEG) / 90);
+                DPWM = Math.floor(DSPEED * PWM_DEG + PWM_MIN);
+
                 L293.P1A.pwmWrite(DPWM);
                 L293.P2A.digitalWrite(0);
 
                 L293.P3A.pwmWrite(PWM);
                 L293.P4A.digitalWrite(0);
-                console.log('Go B-Left', 'DEG', DEG, '[L]', DPWM, '[R]', PWM);
+                console.log('Go B-Left', 'DEG', DEG, '[L]', DSPEED, '[R]', SPEED);
             }
     }
 }
@@ -209,22 +217,18 @@ function axis(event) {
         this.joystick.Y = event.value;
     }
     if (!this.joystick.X && !this.joystick.Y) {
-        L293.P1A.digitalWrite(0);
-        L293.P2A.digitalWrite(0);
-
-        L293.P3A.digitalWrite(0);
-        L293.P4A.digitalWrite(0);
+        this.speed(0);
         return;
     }
     this.deg(Math.floor(
         Math.atan2(this.joystick.X, this.joystick.Y) * 180 / Math.PI
     ));
-    this.pwm(Math.floor(
+    this.speed(Math.floor(
         Math.abs(
             Math.max(
                 Math.abs(this.joystick.X), Math.abs(this.joystick.Y)
             ) / 32767
-        ) * PWM_DEG + PWM_MIN
+        )
     ));
 }
 
