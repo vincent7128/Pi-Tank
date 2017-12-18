@@ -51,6 +51,14 @@ function PiTank(option) {
     }
     console.log('*** Pi-Tank ***');
     console.log('VERSION', VERSION);
+    process.on('SIGINT', function () {
+        this.off();
+        process.exit(0);
+    }.bind(this));
+    process.on('SIGTERM', function () {
+        this.off();
+        process.exit(0);
+    }.bind(this));
     return this;
 }
 
@@ -97,8 +105,7 @@ fn.off = function() {
     L293.P3A.digitalWrite(0);
     L293.P4A.digitalWrite(0);
     L293.P34EN.digitalWrite(0);
-    console.log('*** GAME OVER ***');
-    process.exit(1);
+    console.log('*** TANK OFF ***');
 }
 
 fn.state = function() {
@@ -242,7 +249,6 @@ function button(event) {
             break;
         case 8:
             this.off();
-            process.exit(1);
             break;
     }
 }
