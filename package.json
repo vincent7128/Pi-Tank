@@ -1,6 +1,6 @@
 {
   "name": "pi-tank",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Raspberry Pi Tank, play with 🎮 PS DualShock 2 or scripts.",
   "main": "src/pi-tank.js",
   "scripts": {
