@@ -1,4 +1,4 @@
-var VERSION = '0.4.0',
+var VERSION = '0.4.1',
     Joystick = require('./joystick'),
     GPIO = require('pigpio').Gpio,
     L293 = {
@@ -6,10 +6,10 @@ var VERSION = '0.4.0',
         // P4A, P3A, P34EN
     },
     joystick,
-    DIR = 0;
-    PWM = 0;
-    SPEED = 0;
-    DSPEED = 0;
+    DIR = 0,
+    PWM = 0,
+    SPEED = 0,
+    DSPEED = 0,
     PWM_MAX, PWM_MIN, PWM_DEG,
     BREAK = true,
     fn;
@@ -48,15 +48,9 @@ function PiTank(option) {
         this.joystick.on('axis', option.joystick.axis || axis.bind(this));
         this.joystick.on('button', option.joystick.button || button.bind(this));
     }
-    console.log('*** Pi-Tank ***');
-    console.log('VERSION', VERSION);
-    process.on('SIGINT', function () {
+    console.log('*** Pi-Tank '+ VERSION +' ***');
+    process.on('exit', function () {
         this.off();
-        process.exit(0);
-    }.bind(this));
-    process.on('SIGTERM', function () {
-        this.off();
-        process.exit(0);
     }.bind(this));
     return this;
 }
@@ -247,7 +241,7 @@ function button(event) {
             this.break();
             break;
         case 8:
-            this.off();
+            process.exit(0);
             break;
     }
 }
