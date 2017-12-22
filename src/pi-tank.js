@@ -1,9 +1,10 @@
-var VERSION = '0.4.1',
+var VERSION = '0.5.0',
     Joystick = require('./joystick'),
     GPIO = require('pigpio').Gpio,
     L293 = {
-        // P1A, P2A, P12EN,
-        // P4A, P3A, P34EN
+        // P1A, P2A,
+        // P4A, P3A,
+        // EN
     },
     joystick,
     DIR = 0,
@@ -22,22 +23,19 @@ function PiTank(option) {
     PWM_MAX = option.pwmMax || 255;
     PWM_MIN = option.pwmMin || 60;
     PWM_DEG = (PWM_MAX - PWM_MIN) / 100;
-    L293.P1A = new GPIO(option.L293 && option.L293.P1A || 17, {
+    L293.P1A = new GPIO(option.L293 && option.L293.P1A || 19, {
         mode: GPIO.OUTPUT
     });
-    L293.P2A = new GPIO(option.L293 && option.L293.P2A || 27, {
+    L293.P2A = new GPIO(option.L293 && option.L293.P2A || 26, {
         mode: GPIO.OUTPUT
     });
-    L293.P12EN = new GPIO(option.L293 && option.L293.P12EN || 4, {
+    L293.P3A = new GPIO(option.L293 && option.L293.P3A || 21, {
         mode: GPIO.OUTPUT
     });
-    L293.P3A = new GPIO(option.L293 && option.L293.P3A || 22, {
+    L293.P4A = new GPIO(option.L293 && option.L293.P4A || 20, {
         mode: GPIO.OUTPUT
     });
-    L293.P4A = new GPIO(option.L293 && option.L293.P4A || 23, {
-        mode: GPIO.OUTPUT
-    });
-    L293.P34EN = new GPIO(option.L293 && option.L293.P34EN || 18, {
+    L293.EN = new GPIO(option.L293 && option.L293.EN || 16, {
         mode: GPIO.OUTPUT
     });
     if (option.joystick) {
@@ -77,12 +75,10 @@ fn.speed = function(speed) {
 
 fn.break = function() {
     if (BREAK) {
-        L293.P12EN.digitalWrite(1);
-        L293.P34EN.digitalWrite(1);
+        L293.EN.digitalWrite(1);
         console.log('!!! BREAK OFF !!!');
     } else {
-        L293.P12EN.digitalWrite(0);
-        L293.P34EN.digitalWrite(0);
+        L293.EN.digitalWrite(0);
         console.log('!!! BREAK ON !!!');
     }
     BREAK = !BREAK;
@@ -93,11 +89,11 @@ fn.break = function() {
 fn.off = function() {
     L293.P1A.digitalWrite(0);
     L293.P2A.digitalWrite(0);
-    L293.P12EN.digitalWrite(0);
 
     L293.P3A.digitalWrite(0);
     L293.P4A.digitalWrite(0);
-    L293.P34EN.digitalWrite(0);
+
+    L293.EN.digitalWrite(0);
     console.log('*** TANK OFF ***');
 }
 
