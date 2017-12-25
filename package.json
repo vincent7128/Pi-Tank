@@ -25,6 +25,8 @@
   },
   "homepage": "https://vincent7128.github.io/Pi-Tank/",
   "dependencies": {
-    "pigpio": "^0.6.3"
+    "mime": "^2.1.0",
+    "pigpio": "^0.6.3",
+    "socket.io": "^2.0.4"
   }
 }
