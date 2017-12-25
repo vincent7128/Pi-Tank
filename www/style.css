@@ -1,0 +1,60 @@
+* {
+    padding: 0;
+    margin: 0;
+    font-family: monospace;
+    -webkit-user-select: none;
+}
+
+body {
+    background-color: #000;
+}
+
+#messager, #axis, #breaker {
+    position: fixed;
+    z-index: 1;
+}
+
+#messager {
+    font-size: 18px;
+    z-index: 0;
+    width: 100vh;
+    height: 100vh;
+    color: #7CFC00;
+}
+
+#axis, #breaker {
+    background-color: #eee;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    cursor: pointer;
+    border: none;
+}
+
+#axis {
+    width: 50vh;
+    height: 50vh;
+    border-radius: 50%;
+    top: 25%;
+}
+
+#breaker {
+    font-size: 24px;
+    font-weight: bolder;
+    padding: 10px 15px;
+    border-radius: 5px;
+    bottom: 15px;
+}
+
+#breaker.on {
+    color: red;
+}
+
+#breaker.off {
+    color: green;
+}
+
+#breaker:active {
+    color: #fff;
+    background-color: #666;
+}
