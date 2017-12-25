@@ -106,6 +106,7 @@ fn.off = function() {
 
 fn.state = function() {
     return {
+        version: VERSION,
         dir: DIR,
         speed: SPEED,
         break: BREAK
