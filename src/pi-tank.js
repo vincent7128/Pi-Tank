@@ -1,4 +1,4 @@
-var VERSION = '0.5.0',
+var VERSION = '0.6.0',
     Joystick = require('./joystick'),
     GPIO = require('pigpio').Gpio,
     L293 = {
@@ -46,14 +46,21 @@ function PiTank(option) {
         this.joystick.on('axis', option.joystick.axis || axis.bind(this));
         this.joystick.on('button', option.joystick.button || button.bind(this));
     }
-    console.log('*** Pi-Tank '+ VERSION +' ***');
-    process.on('exit', function () {
+    console.log('*** Pi-Tank ' + VERSION + ' ***');
+    process.on('exit', function() {
         this.off();
     }.bind(this));
     return this;
 }
 
 fn = PiTank.prototype;
+
+fn.move = function(direction, speed) {
+    DIR = (direction === undefined ? direction : 90 + 540) % 360 - 180;
+    SPEED = Math.min(Math.max(speed === undefined ? speed : 100, 0), 100);
+    console.log('Move Direction', DIR, 'Speed', SPEED);
+    action();
+}
 
 fn.direction = function(direction) {
     if (direction !== undefined) {
@@ -99,8 +106,8 @@ fn.off = function() {
 
 fn.state = function() {
     return {
-        deg: DIR,
-        pwm: PWM,
+        dir: DIR,
+        speed: SPEED,
         break: BREAK
     };
 }
