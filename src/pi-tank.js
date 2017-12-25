@@ -1,5 +1,10 @@
 var VERSION = '0.6.0',
     Joystick = require('./joystick'),
+    http = require("http"),
+    url = require('url'),
+    fs = require('fs'),
+    mime = require('mime'),
+    io = require('socket.io'),
     GPIO = require('pigpio').Gpio,
     L293 = {
         // P1A, P2A,
@@ -7,6 +12,8 @@ var VERSION = '0.6.0',
         // EN
     },
     joystick,
+    server,
+    socket,
     DIR = 0,
     PWM = 0,
     SPEED = 0,
@@ -46,6 +53,44 @@ function PiTank(option) {
         this.joystick.on('axis', option.joystick.axis || axis.bind(this));
         this.joystick.on('button', option.joystick.button || button.bind(this));
     }
+    if (option.web) {
+        server = http.createServer(function(request, response) {
+            var path = url.parse(request.url).pathname;
+            switch (path) {
+                case '/':
+                    path = '/index.html';
+                default:
+                    fs.readFile(__dirname + '/www' + path, function(error, data) {
+                        if (error) {
+                            response.writeHead(404);
+                            response.write("opps this doesn't exist - 404");
+                        } else {
+                            response.writeHead(200, {
+                                "Content-Type": mime.getType(path)
+                            });
+                            response.write(data, "utf8");
+                        }
+                        response.end();
+                    });
+            }
+        });
+        server.listen(option.web.port || 8080);
+        socket = io(http);
+        socket.listen(server);
+        socket.on('connection', function(client) {
+            client.emit('state', this.state());
+            client.on('move', function(json) {
+                console.log(json);
+                this.move(json.dir, json.speed);
+                client.emit('state', this.state());
+            }.bind(this));
+            client.on('break', function() {
+                console.log(BREAK);
+                this.break();
+                client.emit('state', this.state());
+            }.bind(this));
+        }.bind(this));
+    }
     console.log('*** Pi-Tank ' + VERSION + ' ***');
     process.on('exit', function() {
         this.off();
@@ -56,8 +101,8 @@ function PiTank(option) {
 fn = PiTank.prototype;
 
 fn.move = function(direction, speed) {
-    DIR = (direction === undefined ? direction : 90 + 540) % 360 - 180;
-    SPEED = Math.min(Math.max(speed === undefined ? speed : 100, 0), 100);
+    DIR = (direction !== undefined ? direction + 540 : 540) % 360 - 180;
+    SPEED = Math.min(Math.max(speed !== undefined ? speed : 0, 0), 100);
     console.log('Move Direction', DIR, 'Speed', SPEED);
     action();
 }

@@ -1,4 +1,4 @@
-var tank, socket, messager, axis, breaker;
+var state, socket, messager, axis, breaker;
 
 function axisInit() {
     axis.centerX = axis.clientWidth / 2;
@@ -11,6 +11,9 @@ function axisInit() {
 }
 
 function axisActive(event) {
+    if (tank.break) {
+        return;
+    }
     if (event.touches) {
         event = event.touches[0];
     }
@@ -47,16 +50,6 @@ function axisRelease(event) {
 }
 
 function move(x, y) {
-    stateUpdate({
-        dir: Math.floor(
-            Math.atan2(y, -x) * 180 / Math.PI
-        ),
-        speed: Math.floor(
-            (Math.pow(x, 2) + Math.pow(y, 2)) /
-            Math.pow(axis.centerY, 2) * 100
-        )
-    });
-    return;
     if (!x && !y) {
         socket.emit('move', {
             dir: 90,
@@ -79,19 +72,19 @@ function breakerInit() {
     breaker.addEventListener('click', function() {
         if (breaker.getAttribute('class') === 'on') {
             breaker.setAttribute('class', 'off');
-            breaker.textContent = 'BREAK OFF';
         } else {
             breaker.setAttribute('class', 'on');
-            breaker.textContent = 'BREAK ON';
         }
+        socket.emit('break');
     }, false);
 }
 
 function stateUpdate(state) {
-    messager.textContent = 'VERSION: ' + state.version + '\n';
-    messager.textContent += 'DIR: ' + state.dir + '\n';
-    messager.textContent += 'SPEED: ' + state.speed + '\n';
-    messager.textContent += 'BREAK: ' + state.break+'\n';
+    tank = state;
+    messager.textContent = 'VERSION4: ' + tank.version + '\n';
+    messager.textContent += 'DIR: ' + tank.dir + '\n';
+    messager.textContent += 'SPEED: ' + tank.speed + '\n';
+    messager.textContent += 'BREAK: ' + (tank.break ? 'off' : 'on') + '\n';
 }
 
 function socketInit() {
