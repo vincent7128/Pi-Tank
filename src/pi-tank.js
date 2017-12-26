@@ -101,8 +101,8 @@ function PiTank(option) {
 fn = PiTank.prototype;
 
 fn.move = function(direction, speed) {
-    DIR = (direction !== undefined ? direction + 540 : 540) % 360 - 180;
-    SPEED = Math.min(Math.max(speed !== undefined ? speed : 0, 0), 100);
+    DIR = direction || 0;
+    SPEED = speed || 0;
     console.log('Move Direction', DIR, 'Speed', SPEED);
     action();
 }
