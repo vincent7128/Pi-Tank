@@ -73,11 +73,6 @@ function move(x, y) {
 
 function breakerInit() {
     breaker.addEventListener('click', function() {
-        if (breaker.getAttribute('class') === 'on') {
-            breaker.setAttribute('class', 'off');
-        } else {
-            breaker.setAttribute('class', 'on');
-        }
         socket.emit('break');
     }, false);
 }
@@ -88,6 +83,11 @@ function stateUpdate(state) {
     messager.textContent += 'DIR: ' + tank.dir + '\n';
     messager.textContent += 'SPEED: ' + tank.speed + '\n';
     messager.textContent += 'BREAK: ' + (tank.break ? 'on' : 'off') + '\n';
+    if (tank.break) {
+        breaker.setAttribute('class', 'on');
+    } else {
+        breaker.setAttribute('class', 'off');
+    }
 }
 
 function socketInit() {
