@@ -1,4 +1,4 @@
-var state, socket, messager, axis, analog, breaker;
+var state, socket, dashboard, axis, analog, breaker;
 
 function axisInit() {
     axis.centerX = axis.clientWidth / 2;
@@ -144,10 +144,10 @@ function breakerInit() {
 
 function stateUpdate(state) {
     tank = state;
-    messager.textContent = 'VERSION4: ' + tank.version + '\n';
-    messager.textContent += 'DIR: ' + tank.dir + '\n';
-    messager.textContent += 'SPEED: ' + tank.speed + '\n';
-    messager.textContent += 'BREAK: ' + (tank.break ? 'on' : 'off') + '\n';
+    dashboard.textContent = 'Pi-Tank: ' + tank.version + '\n';
+    dashboard.textContent += 'DIR: ' + tank.dir + '\n';
+    dashboard.textContent += 'SPEED: ' + tank.speed + '\n';
+    dashboard.textContent += 'BREAK: ' + (tank.break ? 'on' : 'off') + '\n';
     if (tank.break) {
         breaker.setAttribute('class', 'on');
     } else {
@@ -187,7 +187,7 @@ function socketInit() {
 }
 
 window.addEventListener('load', function init() {
-    messager = document.querySelector('#messager');
+    dashboard = document.querySelector('#dashboard');
     axis = document.querySelector('#axis');
     analog = document.querySelector('#axis-analog');
     breaker = document.querySelector('#breaker');

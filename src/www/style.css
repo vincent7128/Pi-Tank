@@ -10,12 +10,12 @@ body {
     background-color: #000;
 }
 
-#messager, #axis, #breaker {
+#dashboard, #axis, #breaker {
     position: fixed;
     z-index: 1;
 }
 
-#messager {
+#dashboard {
     width: 100vh;
     height: 100vh;
     z-index: 0;
