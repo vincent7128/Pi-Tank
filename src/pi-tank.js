@@ -158,12 +158,12 @@ fn.state = function() {
     };
 }
 
-fn.play = function(acts) {
+fn.play = function(plays) {
     var time = 0;
-    acts.forEach(function(act) {
-        setTimeout(act.play, time);
-        time += act.time || 1;
-    });
+    plays.forEach(function(play) {
+        setTimeout(play.rule.bind(this), time);
+        time += play.time || 1;
+    }.bind(this));
 };
 
 function action() {

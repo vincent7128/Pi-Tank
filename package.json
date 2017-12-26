@@ -1,10 +1,15 @@
 {
   "name": "pi-tank",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Raspberry Pi Tank, play with 🎮 PS DualShock 2 or scripts.",
   "main": "src/pi-tank.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+      "pi-tank-web": "bin/web.js",
+      "pi-tank-joystick": "bin/joystick.js",
+      "pi-tank-play": "bin/play.js"
   },
   "repository": {
     "type": "git",
