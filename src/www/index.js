@@ -1,73 +1,125 @@
-var state, socket, messager, axis, breaker;
+var state, socket, messager, axis, analog, breaker;
 
 function axisInit() {
     axis.centerX = axis.clientWidth / 2;
     axis.centerY = axis.clientHeight / 2;
-    axis.addEventListener("mousedown", axisActive, false);
-    axis.addEventListener("touchstart", axisActive, false);
+    axis.addEventListener("mousedown", active, false);
+    axis.addEventListener("touchstart", active, false);
 
-    axis.addEventListener("mouseup", axisRelease, false);
-    axis.addEventListener("touchend", axisRelease, false);
-}
+    axis.addEventListener("mouseup", release, false);
+    axis.addEventListener("touchend", release, false);
 
-function axisActive(event) {
-    if (tank.break) {
-        return;
+    function active(event) {
+        if (tank.break) {
+            return;
+        }
+        if (event.touches) {
+            event = event.touches[0];
+        }
+        var x = event.clientX - axis.offsetLeft - axis.centerX;
+        var y = event.clientY - axis.offsetTop - axis.centerY;
+        var dir = Math.floor(Math.atan2(x, -y) * 180 / Math.PI);
+        if (dir <= 15 && dir >= -15) {
+            go(0, 100);
+        } else if (dir <= -165 || dir >= 165) {
+            go(-180, 100);
+        } else if (dir <= 105 && dir >= 75) {
+            go(90, 100);
+        } else if (dir <= -75 && dir >= -105) {
+            go(-90, 100);
+        } else if (dir <= 60 && dir >= 30) {
+            go(45, 100);
+        } else if (dir <= -30 && dir >= -60) {
+            go(-45, 100);
+        } else if (dir <= 150 && dir >= 120) {
+            go(135, 100);
+        } else if (dir <= -120 && dir >= -150) {
+            go(-135, 100);
+        }
     }
-    if (event.touches) {
-        event = event.touches[0];
+
+    function release(event) {
+        go(0, 0);
     }
-    axis.addEventListener("mousemove", axisMove, false);
-    axis.addEventListener("touchmove", axisMove, false);
-    var x = event.clientX - axis.offsetLeft;
-    var y = event.clientY - axis.offsetTop;
 
-    axis.style.background = 'radial-gradient(circle at ' +
-        x + 'px ' +
-        y + 'px, ' +
-        '#000 0%, #333 20%, #eee 80%)';
-    move(x, y);
-}
-
-function axisMove(event) {
-    if (event.touches) {
-        event = event.touches[0];
-    }
-    var x = event.clientX - axis.offsetLeft;
-    var y = event.clientY - axis.offsetTop;
-    axis.style.background = 'radial-gradient(circle at ' +
-        x + 'px ' +
-        y + 'px, ' +
-        '#000 0%, #333 20%, #eee 80%)';
-    move(x, y);
-}
-
-function axisRelease(event) {
-    axis.removeEventListener("mousemove", axisMove, false);
-    axis.removeEventListener("touchmove", axisMove, false);
-    axis.style.background = '';
-    move(0, 0);
-}
-
-function move(x, y) {
-    if (!x && !y) {
+    function go(dir, speed) {
         socket.emit('move', {
-            dir: 0,
-            speed: 0
+            dir: dir,
+            speed: speed
         });
-    } else {
-        x -= axis.centerX;
-        y -= axis.centerY;
-        socket.emit('move', {
-            dir:
-            Math.floor(
-                Math.atan2(x, -y) * 180 / Math.PI
-            ),
-            speed: Math.min(Math.floor(
-                (Math.pow(x, 2) + Math.pow(y, 2)) /
-                Math.pow(axis.centerY, 2) * 100
-            ), 100)
-        });
+    }
+}
+
+function analogInit() {
+    analog.centerX = analog.clientWidth / 2;
+    analog.centerY = analog.clientHeight / 2;
+    analog.left = analog.offsetLeft + axis.offsetLeft;
+    analog.top = analog.offsetTop + axis.offsetTop;
+    analog.addEventListener("mousedown", active, false);
+    analog.addEventListener("touchstart", active, false);
+
+    analog.addEventListener("mouseup", release, false);
+    analog.addEventListener("touchend", release, false);
+
+    function active(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (tank.break) {
+            return;
+        }
+        if (event.touches) {
+            event = event.touches[0];
+        }
+        analog.addEventListener("mousemove", move, false);
+        analog.addEventListener("touchmove", move, false);
+        var x = event.clientX - analog.left;
+        var y = event.clientY - analog.top;
+        analog.style.background = 'radial-gradient(circle at ' +
+            x + 'px ' +
+            y + 'px, ' +
+            '#000 0%, #333 20%, #bbb 80%)';
+        go(x, y);
+    }
+
+    function move(event) {
+        if (event.touches) {
+            event = event.touches[0];
+        }
+        var x = event.clientX - analog.left;
+        var y = event.clientY - analog.top;
+        analog.style.background = 'radial-gradient(circle at ' +
+            x + 'px ' +
+            y + 'px, ' +
+            '#000 0%, #333 20%, #bbb 80%)';
+        go(x, y);
+    }
+
+    function release(event) {
+        analog.removeEventListener("mousemove", move, false);
+        analog.removeEventListener("touchmove", move, false);
+        analog.style.background = '';
+        go(0, 0);
+    }
+
+    function go(x, y) {
+        if (!x && !y) {
+            socket.emit('move', {
+                dir: 0,
+                speed: 0
+            });
+        } else {
+            x -= analog.centerX;
+            y -= analog.centerY;
+            socket.emit('move', {
+                dir: Math.floor(
+                    Math.atan2(x, -y) * 180 / Math.PI
+                ),
+                speed: Math.min(Math.floor(
+                    (Math.pow(x, 2) + Math.pow(y, 2)) /
+                    Math.pow(analog.centerY, 2) * 100
+                ), 100)
+            });
+        }
     }
 }
 
@@ -124,8 +176,10 @@ function socketInit() {
 window.addEventListener('load', function init() {
     messager = document.querySelector('#messager');
     axis = document.querySelector('#axis');
+    analog = document.querySelector('#axis-analog');
     breaker = document.querySelector('#breaker');
     axisInit();
+    analogInit();
     breakerInit();
     socketInit();
 }, false);

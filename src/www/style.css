@@ -6,6 +6,7 @@
 }
 
 body {
+    height: calc(100vh + 1px);
     background-color: #000;
 }
 
@@ -36,6 +37,18 @@ body {
     height: 50vh;
     border-radius: 50%;
     top: 25%;
+    background-image: url(axis.png);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+#axis-analog {
+    width: 70%;
+    height: 70%;
+    border-radius: 50%;
+    margin: 15% auto;
+    background-color: #bbb;
 }
 
 #breaker {
