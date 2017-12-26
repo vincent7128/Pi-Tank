@@ -3,6 +3,7 @@ var state, socket, messager, axis, analog, breaker;
 function axisInit() {
     axis.centerX = axis.clientWidth / 2;
     axis.centerY = axis.clientHeight / 2;
+
     axis.addEventListener("mousedown", active, false);
     axis.addEventListener("touchstart", active, false);
 
@@ -10,9 +11,16 @@ function axisInit() {
     axis.addEventListener("touchend", release, false);
 
     function active(event) {
+        event.preventDefault();
         if (tank.break) {
             return;
         }
+        axis.addEventListener("mousemove", move, false);
+        axis.addEventListener("touchmove", move, false);
+        move(event);
+    }
+
+    function move(event) {
         if (event.touches) {
             event = event.touches[0];
         }
@@ -40,6 +48,8 @@ function axisInit() {
     }
 
     function release(event) {
+        axis.removeEventListener("mousemove", move, false);
+        axis.removeEventListener("touchmove", move, false);
         go(0, 0);
     }
 
@@ -63,6 +73,7 @@ function analogInit() {
     analog.centerY = analog.clientHeight / 2;
     analog.left = analog.offsetLeft + axis.offsetLeft;
     analog.top = analog.offsetTop + axis.offsetTop;
+
     analog.addEventListener("mousedown", active, false);
     analog.addEventListener("touchstart", active, false);
 
@@ -80,13 +91,7 @@ function analogInit() {
         }
         analog.addEventListener("mousemove", move, false);
         analog.addEventListener("touchmove", move, false);
-        var x = event.clientX - analog.left;
-        var y = event.clientY - analog.top;
-        analog.style.background = 'radial-gradient(circle at ' +
-            x + 'px ' +
-            y + 'px, ' +
-            '#000 0%, #333 20%, #bbb 80%)';
-        go(x, y);
+        move(event);
     }
 
     function move(event) {

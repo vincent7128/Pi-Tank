@@ -16,10 +16,11 @@ body {
 }
 
 #messager {
-    font-size: 18px;
-    z-index: 0;
     width: 100vh;
     height: 100vh;
+    z-index: 0;
+    padding: 10px;
+    font-size: 18px;
     color: #7CFC00;
 }
 
@@ -43,7 +44,7 @@ body {
     background-position: center;
 }
 
-#axis.active {
+#axis.active, #axis::after {
     background-image: url(axis-active.png);
 }
 
