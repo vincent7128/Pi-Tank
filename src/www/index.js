@@ -21,6 +21,7 @@ function axisInit() {
         var dir = Math.floor(Math.atan2(x, -y) * 180 / Math.PI);
         if (dir <= 15 && dir >= -15) {
             go(0, 100);
+            axis.setAttribute
         } else if (dir <= -165 || dir >= 165) {
             go(-180, 100);
         } else if (dir <= 105 && dir >= 75) {
@@ -43,6 +44,13 @@ function axisInit() {
     }
 
     function go(dir, speed) {
+        if (speed) {
+            axis.setAttribute('class', 'active');
+            axis.style.transform = 'rotate(' + dir + 'deg)';
+        } else {
+            axis.removeAttribute('style');
+            axis.removeAttribute('class');
+        }
         socket.emit('move', {
             dir: dir,
             speed: speed
@@ -97,7 +105,7 @@ function analogInit() {
     function release(event) {
         analog.removeEventListener("mousemove", move, false);
         analog.removeEventListener("touchmove", move, false);
-        analog.style.background = '';
+        analog.removeAttribute('style');
         go(0, 0);
     }
 

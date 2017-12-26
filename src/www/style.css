@@ -43,6 +43,10 @@ body {
     background-position: center;
 }
 
+#axis.active {
+    background-image: url(axis-active.png);
+}
+
 #axis-analog {
     width: 70%;
     height: 70%;
