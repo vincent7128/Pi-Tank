@@ -137,7 +137,8 @@ function analogInit() {
 }
 
 function breakerInit() {
-    breaker.addEventListener('click', function() {
+    breaker.addEventListener('click', function(event) {
+        event.preventDefault();
         socket.emit('break');
     }, false);
 }
