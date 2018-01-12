@@ -1,86 +1,76 @@
 Pi Tank
 ======
-Raspberry Pi Tank, play with 🎮 PS DualShock 2 or scripts.
+Raspberry Pi Tank, play on computer or phone, also can play with PS DualShock or scripts.
 
-[📺 Demo On Youtube](https://youtu.be/czwEzWJb0UM)
+[📺 Web Demo On Youtube](https://youtu.be/AcS-mvNuP6E)
 
-# Usage
+[📺 Joystick Demo On Youtube](https://youtu.be/4AIHV-h934w)
 
-## Install:
+[📺 Script Demo On Youtube](https://youtu.be/czwEzWJb0UM)
 
+# Install
 ```
-# npm install pi-tank
+# sudo npm install -g pi-tank
 ```
 
 ## Play with web
 ```
-$ sudo node
-> var PiTank = require('pi-tank');
-> tank = PiTank({
-    web: {
-        port: 8080
-    }
-});
+$ sudo pi-tank-web [port-number: default 8080]
 ```
+*** Open http://[your-RaspberryPi-ip]:[port-number] ***
 
 ## Play with usb joystick
 ```
-$ sudo node
-> var PiTank = require('pi-tank');
-> tank = PiTank({
-    joystick: {
-        id: 0
-    }
-});
+$ sudo pi-tank-joystick [USB-joystick-id: default 0]
 ```
 
-## Play with command
+## Play with script
+
+#### Create play.json
 ```
-$ sudo node
-> var PiTank = require('pi-tank');
-> tank = PiTank();
-> tank.play([
-{
-    play: function () {
-        tank.break();
+[{
+    "rule": function () {
+        this.break();
     }
 },
 {
-    play: function () {
-        tank.speed(100);
+    "rule": function () {
+        this.speed(100);
     },
-    time: 3000
+    "time": 3000
 },
 {
-    play: function () {
-        tank.direction(90);
+    "rule": function () {
+        this.direction(90);
     },
-    time: 3000
+    "time": 3000
 },
 {
-    play: function () {
-        tank.direction(-90);
+    "rule": function () {
+        this.direction(-90);
     },
-    time: 3000
+    "time": 3000
 },
 {
-    play: function () {
-        tank.direction(180);
+    "rule": function () {
+        this.direction(180);
     },
-    time: 3000
+    "time": 3000
 },
 {
-    play: function () {
-        tank.off();
+    "rule": function () {
+        this.off();
     }
-}
-]);
+}]
+```
+
+#### Run script
+```
+$ sudo pi-tank-play play.json
 ```
 
 # L293 default wiring
-
 ![l293-default-wiring](l293-default-wiring.png)
 
 # License
-
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
